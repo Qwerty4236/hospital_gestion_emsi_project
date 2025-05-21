@@ -6,10 +6,10 @@ app.use(express.json());
 
 // Add a name
 app.post('/names', (req, res) => {
-  const { name } = req.body;
-  db.run('INSERT INTO names (name) VALUES (?)', [name], function (err) {
+  const { name,ip } = req.body;
+  db.run('INSERT INTO names (name,ip) VALUES (?,?)', [name,ip], function (err) {
     if (err) return res.status(500).json({ error: err.message });
-    res.status(201).json({ id: this.lastID, name });
+    res.status(201).json({ id: this.lastID, name ,ip});
   });
 });
 

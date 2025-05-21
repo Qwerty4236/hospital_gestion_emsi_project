@@ -7,7 +7,8 @@ db.serialize(() => {
     CREATE TABLE IF NOT EXISTS names (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      ip TEXT NOT NULL
     );
   `);
 });

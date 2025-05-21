@@ -6,6 +6,22 @@
 #include <windows.h>
 #define MAX_LINE 256
 
+int valid_numb(char *s){
+  while (*s)
+  {
+    if(!isdigit(*s)){
+      return 1;
+    }
+    s++;
+  }
+  return 0;
+}
+
+void flushInput() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
+}
+
 int exist_file(){
   FILE *file=fopen("user.csv","r");
   if (file==NULL){
@@ -169,6 +185,126 @@ char* get_infos(int index,int numb){
   return x;
 }
 
+//NAME,SEX,AGE,PRO,SF,A,AM,TEL
+void add_user(char *name,char *sex,char* age,char *pro,char *sf, char *a, char *am, char *tel){
+  if(exist_file()){
+    FILE *file=fopen("user.csv","a+");
+    fprintf(file,"%s,%s,%s,%s,%s,%s,%s,%s\n",name,sex,age,pro,sf,a,am,tel);
+    printf("%s est ajouter au fichier",name);
+    fclose(file);
+  }
+}
+
+void removeLine(int lineToRemove) {
+  if (lineToRemove<0){
+    return;
+  }
+    FILE *file = fopen("user.csv", "r");
+    FILE *temp = fopen("temp.csv", "w");
+    if (!file || !temp) {
+        perror("Error opening file");
+        return;
+    }
+    char buffer[1024];
+    int currentLine = -1;
+    while (fgets(buffer, sizeof(buffer), file)) {
+        if (currentLine != lineToRemove) {
+            fputs(buffer, temp);
+        }
+        currentLine++;
+    }
+    fclose(file);
+    fclose(temp);
+    remove("user.csv");
+    rename("temp.csv", "user.csv");
+}
+
+void modify(int index){
+  if (!exist_file() || index<0){
+    perror("Erreur");
+    return;
+  }
+  if(index>get_lines()-1){
+    perror("Erreur");
+    return;
+  }
+  char *info[]={get_infos(index,0),get_infos(index,1),get_infos(index,2),get_infos(index,3),
+  get_infos(index,4),get_infos(index,5),get_infos(index,6),get_infos(index,7)},
+
+  *mrstr=(char *)malloc(40*sizeof(char)),*text=(char *)malloc(10*sizeof(char));
+
+  const char *params[]={"NOM","SEX","AGE","PROFESSION","SITUATION FAMILIALE","ADRESSE","AFFILIATION MUTULLE","TEL"};
+  printf(
+"\n\nSELECTIONER QUOI MODIFIER\n\n"
+"+-----+------------------------------------------+\n"
+"|  0  | %-41s|\n"
+"+-----+------------------------------------------+\n"
+"|  1  | %-41s|\n"
+"+-----+------------------------------------------+\n"
+"|  2  | %-41s|\n"
+"+-----+------------------------------------------+\n"
+"|  3  | %-41s|\n"
+"+-----+------------------------------------------+\n"
+"|  4  | %-41s|\n"
+"+-----+------------------------------------------+\n"
+"|  5  | %-41s|\n"
+"+-----+------------------------------------------+\n"
+"|  6  | %-41s|\n"
+"+-----+------------------------------------------+\n"
+"|  7  | %-41s|\n"
+"+-----+------------------------------------------+\n\n",params[0],params[1],params[2],params[3],params[4],params[5],params[6],params[7]);
+    do{
+      printf("choisir une option a modifier\n>");
+      fgets(text,10,stdin);
+      if (strchr(text, '\n') == NULL) {
+        flushInput();
+      } else {
+        text[strcspn(text, "\n")] = '\0';
+      } // enlever le \n
+    }while(valid_numb(text) || strlen(text)>=10);
+
+      do{
+      printf("info a modifier -> %s\n>",params[atoi(text)]);
+      fgets(mrstr,40,stdin);
+      if (strchr(mrstr, '\n') == NULL) {
+        flushInput();
+      } else {
+        mrstr[strcspn(mrstr, "\n")] = '\0';
+      } // enlever le \n
+    }while(strlen(mrstr)>=40);
+
+    removeLine(index);
+    info[atoi(text)]=mrstr;
+    add_user(info[0],info[1],info[2],info[3],info[4],info[5],info[6],info[7]);
+}
+
+void show_infos(int index){
+  if (!exist_file() || index<0){
+    perror("Erreur");
+    return;
+  }
+  if(index>get_lines()-1){
+    perror("Erreur");
+    return;
+  }
+  char *info[]={get_infos(index,0),get_infos(index,1),get_infos(index,2),get_infos(index,3),
+  get_infos(index,4),get_infos(index,5),get_infos(index,6),get_infos(index,7)};
+
+    printf(
+"\n\nInfo utilisateur ID: %d\n\n"
+"+-------+------------------------------------------+-------+------------------------------------------+\n"
+"|  Nom  | %-41s|  Sex  | %-41s|\n"
+"+-------+------------------------------------------+-------+------------------------------------------+\n"
+"|  Age  | %-41s|  Pro  | %-41s|\n"
+"+-------+------------------------------------------+-------+------------------------------------------+\n"
+"|  S.F  | %-41s|  ADR  | %-41s|\n"
+"+-------+------------------------------------------+-------+------------------------------------------+\n"
+"|  A.M  | %-41s|  Tel  | %-41s|\n"
+"+-------+------------------------------------------+-------+------------------------------------------+\n\n",index,info[0],info[1],info[2],info[3],info[4],info[5],info[6],info[7]);
+}
+
+
+
 int main(){
     // if (!SetConsoleCtrlHandler(ConsoleHandler, TRUE)) {
     //   printf("Error: Could not set control handler\n");
@@ -180,5 +316,5 @@ int main(){
     // while (1) {
     //   Sleep(1000);  // Simulate work
     // }
-    printf("%s %s %s %s %s %s %s %s",get_infos(0,0),get_infos(0,1),get_infos(0,2),get_infos(0,3),get_infos(0,4),get_infos(0,5),get_infos(0,6),get_infos(0,7));
+    show_infos(0);
 }
