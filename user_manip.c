@@ -138,14 +138,6 @@ int levenshtein_max2(const char *s1, const char *s2, int max_dist) {
     return result;
 }
 
-BOOL WINAPI ConsoleHandler(DWORD signal) {
-    if (signal == CTRL_CLOSE_EVENT || signal == CTRL_C_EVENT) {
-        printf("Caught console close or Ctrl+C — cleaning up!\n");
-        return TRUE;
-    }
-    return FALSE;
-}
-
 
 int get_lines(){
   // calcule combien de ligne on a dans le fichier
@@ -175,9 +167,7 @@ char* get_infos(int index,int numb){
   }
   
   char *x=(char *)malloc(MAX_LINE*sizeof(char));
-  char *type=(char *)malloc(MAX_LINE*sizeof(char));
   x=get_info(index);
-  int c=0;
   x=strtok(x,",");
   for (int i=0;i<numb;i++){
     x=strtok(NULL,",");
@@ -195,7 +185,7 @@ void add_user(char *name,char *sex,char* age,char *pro,char *sf, char *a, char *
   }
 }
 
-void removeLine(int lineToRemove) {
+void remove_line(int lineToRemove) {
   if (lineToRemove<0){
     return;
   }
@@ -252,6 +242,8 @@ void modify(int index){
 "|  6  | %-41s|\n"
 "+-----+------------------------------------------+\n"
 "|  7  | %-41s|\n"
+"+-----+------------------------------------------+\n"
+"|  8  | SORTIR                                   |\n"
 "+-----+------------------------------------------+\n\n",params[0],params[1],params[2],params[3],params[4],params[5],params[6],params[7]);
     do{
       printf("choisir une option a modifier\n>");
@@ -261,9 +253,14 @@ void modify(int index){
       } else {
         text[strcspn(text, "\n")] = '\0';
       } // enlever le \n
-    }while(valid_numb(text) || strlen(text)>=10);
-
-      do{
+    }while(valid_numb(text) || strlen(text)>=10 || atoi(text)<0 || atoi(text)>8);
+    
+    if(atoi(text)==8){
+      printf("AUCUNE MODIFICATION SERA EFFECTUER\n");
+      return;
+    }
+    
+    do{
       printf("info a modifier -> %s\n>",params[atoi(text)]);
       fgets(mrstr,40,stdin);
       if (strchr(mrstr, '\n') == NULL) {
@@ -273,7 +270,7 @@ void modify(int index){
       } // enlever le \n
     }while(strlen(mrstr)>=40);
 
-    removeLine(index);
+    remove_line(index);
     info[atoi(text)]=mrstr;
     add_user(info[0],info[1],info[2],info[3],info[4],info[5],info[6],info[7]);
 }
@@ -303,18 +300,16 @@ void show_infos(int index){
 "+-------+------------------------------------------+-------+------------------------------------------+\n\n",index,info[0],info[1],info[2],info[3],info[4],info[5],info[6],info[7]);
 }
 
-
-
-int main(){
-    // if (!SetConsoleCtrlHandler(ConsoleHandler, TRUE)) {
-    //   printf("Error: Could not set control handler\n");
-    //   return 1;
-    // }
-
-    // printf("Running... Press Ctrl+C or close the window.\n");
-
-    // while (1) {
-    //   Sleep(1000);  // Simulate work
-    // }
-    show_infos(0);
+int list_user(){
+  printf("\n\n%46s\n","LISTE D'UTILISATEUR");
+  for (int i = 0; i < get_lines(); i++)
+  {
+    printf(
+      "+---------+-----------------------------------------+---------+-------------+\n"
+      "|    %-5d| %-40s|   %-6s|   %-8s  |\n",i,get_infos(i,0),get_infos(i,2),get_infos(i,1));
+  }
+  printf("+---------+-----------------------------------------+---------+-------------+\n\n");
+  Sleep(500);
 }
+
+
